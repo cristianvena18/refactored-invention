@@ -9,10 +9,7 @@ namespace TpFinal.Data
 {
     public class DatabaseConnection : DbContext
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder optionBuilder)
-        {
-            optionBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=database;Trusted_Connection=True;MultipleActiveResultSets=True");
-        }
+        public DatabaseConnection(DbContextOptions<DatabaseConnection> options): base(options) { }
 
         public DbSet<Person> People { get; set; }
         public DbSet<Genre> Genres { get; set; }
