@@ -7,7 +7,7 @@ namespace TpFinal.Models
 {
     public class Act
     {
-        public int MovieId { get; set; }
+        public int FilmId { get; set; }
         public int PersonId { get; set; }
     }
 }
