@@ -14,7 +14,8 @@ namespace TpFinal.Models
         public string Photo { get; set; }
         public string Trailer { get; set; }
         public string Summary { get; set; }
-        public List<MoviesActors> MoviesActors { get; set; }
+        public int? GenreId { get; set; }
+        public Genre Genre { get; set; }
         public List<MoviesGenres> MoviesGenres { get; set; }
     }
 }
