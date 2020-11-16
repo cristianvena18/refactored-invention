@@ -7,25 +7,12 @@ using TpFinal.Models;
 
 namespace TpFinal.Data
 {
-    public class DatabaseConnection : DbContext
+    public class Seeder
     {
-        public DatabaseConnection(DbContextOptions<DatabaseConnection> options) : base(options) { }
+        private DatabaseConnection connection;
 
+        public Seeder(DatabaseConnection connection) { this.connection = connection; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<MoviesGenres>().HasKey(x => new { x.GenreId, x.FilmId });
-            modelBuilder.Entity<MoviesActors>().HasKey(x => new { x.PersonId, x.FilmId });
-            modelBuilder.Entity<Film>().HasMany(x => x.MoviesActors).WithOne(a => a.Film).OnDelete(DeleteBehavior.SetNull);
-            modelBuilder.Entity<Film>().HasMany(x => x.MoviesGenres).WithOne(g => g.Film).OnDelete(DeleteBehavior.SetNull);
-
-            modelBuilder.Entity<MoviesActors>().HasOne(x => x.Film).WithMany(x => x.MoviesActors);
-            modelBuilder.Entity<MoviesGenres>().HasOne(x => x.Film).WithMany(x => x.MoviesGenres);
-
-            base.OnModelCreating(modelBuilder);
-
-            //SeedData(modelBuilder);
-        }
         public void SeedData(ModelBuilder modelBuilder)
         {
             var adventure = new Genre() { Id = 4, Description = "Adventure" };
@@ -33,7 +20,7 @@ namespace TpFinal.Data
             var drama = new Genre() { Id = 6, Description = "Drama" };
             var romance = new Genre() { Id = 7, Description = "Romance" };
 
-            Genres.AddRange(new List<Genre>
+            connection.Genres.AddRange(new List<Genre>
                 {
                     adventure, animation, drama, romance
                 });
@@ -42,7 +29,7 @@ namespace TpFinal.Data
             var robertDowney = new Person() { Id = 6, Name = "Robert Downey Jr.", Birthdate = new DateTime(1965, 4, 4), Biography = "Robert John Downey Jr. es un actor, actor de voz, productor y cantante estadounidense. Inició su carrera como actor a temprana edad apareciendo en varios filmes dirigidos por su padre, Robert Downey Sr., y en su infancia estudió actuación en varias academias de Nueva York. Se mudó con su padre a California, pero abandonó sus estudios para enfocarse completamente en su carrera." };
             var chrisEvans = new Person() { Id = 7, Name = "Chris Evans", Birthdate = new DateTime(1981, 06, 13), Biography = "Chris Evans, es un actor, director y productor estadounidense. Criado en el pueblo de Sudbury, Evans mostró interés a temprana edad por la actuación y luego de terminar la secundaria, se mudó a Nueva York para estudiar teatro." };
 
-            People.AddRange(new List<Person>
+            connection.People.AddRange(new List<Person>
                 {
                     jimCarrey, robertDowney, chrisEvans
                 });
@@ -85,12 +72,12 @@ namespace TpFinal.Data
                 ReleaseDate = new DateTime(2020, 02, 21)
             };
 
-            Films.AddRange(new List<Film>
+            connection.Films.AddRange(new List<Film>
                 {
                     endgame, iw, sonic, emma, greed
                 });
 
-            MoviesGenres.AddRange(
+            connection.MoviesGenres.AddRange(
                 new List<MoviesGenres>()
                 {
                     new MoviesGenres(){FilmId = endgame.Id, GenreId = drama.Id},
@@ -105,7 +92,7 @@ namespace TpFinal.Data
                 });
 
 
-            MoviesActors.AddRange(
+            connection.MoviesActors.AddRange(
                 new List<MoviesActors>()
                 {
                     new MoviesActors(){FilmId = endgame.Id, PersonId = robertDowney.Id, Character = "Tony Stark", Order = 1},
@@ -115,13 +102,7 @@ namespace TpFinal.Data
                     new MoviesActors(){FilmId = sonic.Id, PersonId = jimCarrey.Id, Character = "Dr. Ivo Robotnik", Order = 1}
                 });
 
-            this.SaveChanges();
+            connection.SaveChanges();
         }
-
-        public DbSet<Person> People { get; set; }
-        public DbSet<Genre> Genres { get; set; }
-        public DbSet<Film> Films { get; set; }
-        public DbSet<MoviesGenres> MoviesGenres { get; set; }
-        public DbSet<MoviesActors> MoviesActors { get; set; }
     }
 }

@@ -35,7 +35,7 @@ namespace TpFinal.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ReleaseDate")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Summary")
                         .HasColumnType("nvarchar(max)");

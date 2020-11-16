@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TpFinal.Data;
@@ -10,10 +14,12 @@ namespace TpFinal.Controllers
     public class FilmsController : Controller
     {
         private readonly DatabaseConnection _context;
+        private readonly IWebHostEnvironment env;
 
-        public FilmsController(DatabaseConnection context)
+        public FilmsController(DatabaseConnection context, IWebHostEnvironment env)
         {
             _context = context;
+            this.env = env;
         }
 
         // GET: Films
@@ -43,6 +49,10 @@ namespace TpFinal.Controllers
         // GET: Films/Create
         public IActionResult Create()
         {
+
+            ViewData["PeopleId"] = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.People, "Id", "Name");
+            ViewData["GenreId"] = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Genres, "Id", "Description");
+
             return View();
         }
 
@@ -51,10 +61,28 @@ namespace TpFinal.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,ReleaseDate,Photo,Trailer,Summary,Genre")] Film film)
+        public async Task<IActionResult> Create([Bind("Id,Title,ReleaseDate,Outstanding,Trailer,Summary,MoviesActors,MoviesGenres")] Film film)
         {
             if (ModelState.IsValid)
             {
+                var files = HttpContext.Request.Form.Files;
+                if (files != null && files.Count > 0)
+                {
+                    var photoFile = files[0];
+                    var path = Path.Combine(env.WebRootPath, "images\\films");
+                    if (photoFile.Length > 0)
+                    {
+                        var fileName = Guid.NewGuid().ToString().Replace("-", "") + Path.GetExtension(photoFile.FileName);
+
+                        using (var filestream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                        {
+                            photoFile.CopyTo(filestream);
+                            film.Photo = fileName;
+                        };
+
+                    }
+                }
+
                 _context.Add(film);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -75,6 +103,10 @@ namespace TpFinal.Controllers
             {
                 return NotFound();
             }
+            ViewData["PeopleId"] = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.People, "Id", "Name");
+            ViewData["GenreId"] = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Genres, "Id", "Description");
+
+
             return View(film);
         }
 
@@ -83,7 +115,7 @@ namespace TpFinal.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ReleaseDate,Photo,Trailer,Summary,Genre")] Film film)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ReleaseDate,Outstanding,Trailer,Summary,MoviesActors,MoviesGenres")] Film film)
         {
             if (id != film.Id)
             {
@@ -94,6 +126,24 @@ namespace TpFinal.Controllers
             {
                 try
                 {
+                    var files = HttpContext.Request.Form.Files;
+                    if (files != null && files.Count > 0)
+                    {
+                        var photoFile = files[0];
+                        var path = Path.Combine(env.WebRootPath, "images\\films");
+                        if (photoFile.Length > 0)
+                        {
+                            var fileName = Guid.NewGuid().ToString().Replace("-", "") + Path.GetExtension(photoFile.FileName);
+
+                            using (var filestream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                            {
+                                photoFile.CopyTo(filestream);
+                                film.Photo = fileName;
+                            };
+
+                        }
+                    }
+
                     _context.Update(film);
                     await _context.SaveChangesAsync();
                 }

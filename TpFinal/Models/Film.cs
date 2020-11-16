@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace TpFinal.Models
 {
@@ -9,10 +8,13 @@ namespace TpFinal.Models
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public string ReleaseDate { get; set; }
+        [Display(Name = "Fecha de lanzamiento")]
+        public DateTime ReleaseDate { get; set; }
+        public bool Outstanding { get; set; }
         public string Photo { get; set; }
         public string Trailer { get; set; }
         public string Summary { get; set; }
-        public string Genre { get; set; }
+        public List<MoviesActors> MoviesActors { get; set; }
+        public List<MoviesGenres> MoviesGenres { get; set; }
     }
 }
